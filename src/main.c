@@ -7,6 +7,8 @@
 #include "iup.h"
 #include "common.h"
 
+#define PREVENT_MULTI_INSTANCE 0
+
 // ! the order decides which module get processed first
 Module* modules[MODULE_CNT] = {
     &lagModule,
@@ -332,12 +334,14 @@ static int uiOnDialogShow(Ihandle *ih, int state) {
     SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)icon);
     SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)icon);
 
+#if PREVENT_MULTI_INSTANCE
     exit = checkIsRunning();
     if (exit) {
         MessageBox(hWnd, (LPCSTR)"Theres' already an instance of clumsy running.",
             (LPCSTR)"Aborting", MB_OK);
         return IUP_CLOSE;
     }
+#endif
 
 #ifdef _WIN32
     exit = check32RunningOn64(hWnd);
