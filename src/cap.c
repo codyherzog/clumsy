@@ -17,7 +17,7 @@ static volatile short capEnabled = 0,
     capInbound = 1, capOutbound = 1;
 static volatile long
     kbps = 300,
-	kbBufMs = 300;
+	kbBufMs = 500;
 
 static PacketNode capHeadNode = {0}, capTailNode = {0};
 static PacketNode *bufHead = &capHeadNode, *bufTail = &capTailNode;
@@ -51,7 +51,7 @@ static Ihandle* capSetupUI() {
 
 #if ALLOW_SET_BUFFER_SIZE
     IupSetAttribute(kbBufMsInput, "VISIBLECOLUMNS", "4");
-    IupSetAttribute(kbBufMsInput, "VALUE", "300");
+    IupSetAttribute(kbBufMsInput, "VALUE", "500");
     IupSetCallback(kbBufMsInput, "VALUECHANGED_CB", uiSyncInteger);
     IupSetAttribute(kbBufMsInput, SYNCED_VALUE, (char*)&kbBufMs);
     IupSetAttribute(kbBufMsInput, INTEGER_MAX, BUFFER_MAX_MS);
