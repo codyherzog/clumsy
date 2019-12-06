@@ -19,7 +19,7 @@ MIT
 
 ## InTouchHealth Fork Notes
 
-Usage Notes:
+### Usage Notes:
 * You can now open multiple Clumsy instances.
     * This was possible in earlier versions, then was lost, but now it's back.
     * Note that we haven't carefully tested the behavior of overlapping filters, so use with care.
@@ -27,7 +27,7 @@ Usage Notes:
     * The cap is shared across up and down traffic, so it's recommended to use a second Clumsy instance for fully independent up vs. down control.
     * This feature is still somewhat experimental, and may not be 100% stable.
 
-Build instructions for Windows 10 with VS 2019:
+### Build instructions for Windows 10 with VS 2019:
 * Clone the repo.
 * Download the most recent 5.x.x Windows version of Premake from here: https://premake.github.io/download.html, and extract the EXE into your local clumsy repo folder.
 * From a command prompt in the clumsy repo folder, execute 'premake5 vs2010'. If you see any Windows Defender or AV warnings, bypass them to execute the command.
@@ -35,7 +35,7 @@ Build instructions for Windows 10 with VS 2019:
 * You should now be able to build and debug the various configurations from VS 2019.
 * You may delete the premake5.exe file at this point if you'd like.
 
-Fork History:
+### Fork History:
 * Forked from "offical" jagt/clumsy into codyherzog/clumsy.
 * Pulled in changes from crunkyball/clumsy to get WinDivert library upgrade which is required for some of our advanced filters.
 * Pulled in changes from rorlork/clumsy to get improvements to bandwidth cap feature.
