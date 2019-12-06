@@ -90,10 +90,9 @@ static void clearBufPackets(PacketNode *tail) {
     }
 }
 
-static const DWORD timeWindowWidthMs = 20;
+static const DWORD timeWindowWidthMs = 20; // Derived from testing to provide good clamp accuracy.
 static DWORD timeWindowStartMs = 0;
-static DWORD timeNextSend = 0;
-static int bytesSentInWindow = 0;
+static int bytesUsedInWindow = 0;
 
 static void capStartUp() {
     if (bufHead->next == NULL && bufTail->next == NULL) {
@@ -106,10 +105,8 @@ static void capStartUp() {
     startTimePeriod();
 	bufSize = 0;
 	bufSizeBytes = 0;
-	DWORD curTime = timeGetTime();
-	timeWindowStartMs = curTime;
-	timeNextSend = curTime;
-	bytesSentInWindow = 0;
+	timeWindowStartMs = timeGetTime();
+	bytesUsedInWindow = 0;
 }
 
 static void capCloseDown(PacketNode *head, PacketNode *tail) {
@@ -125,6 +122,7 @@ static short capProcess(PacketNode* head, PacketNode* tail) {
 	// Process all live packets. Buffer as many as possible. Drop if buffer is full.
 	pac = head->next;
 	while (pac != tail) {
+		// If packet directionality doesn't match the checkbox state, then don't touch it.
 		if (!checkDirection(pac->addr.Outbound, capInbound, capOutbound)) {
 			pac = pac->next;
 			continue;
@@ -132,6 +130,7 @@ static short capProcess(PacketNode* head, PacketNode* tail) {
 
 		const unsigned int maxBufSize = (kbBufMs * kbps) / 8;
 		if (bufSize < KEEP_AT_MOST && bufSizeBytes + pac->packetLen <= maxBufSize) {
+			// Add packet to buffer.
 			pacTmp = pac->next;
 			insertBefore(popNode(pac), bufTail);
 			++bufSize;
@@ -140,6 +139,7 @@ static short capProcess(PacketNode* head, PacketNode* tail) {
 		}
 		else
 		{
+			// Buffer is full, drop the packet.
 			pacTmp = pac->next;
 			popNode(pac);
 			freeNode(pac);
@@ -151,25 +151,30 @@ static short capProcess(PacketNode* head, PacketNode* tail) {
 		return 0;
 	}
 
-	const int bytesAllowedPerWindow = (timeWindowWidthMs * kbps) / 8;
+	const int bytesAllowedInWindow = (timeWindowWidthMs * kbps) / 8;
 
-	DWORD curTime = timeGetTime();
+	const DWORD curTime = timeGetTime();
 	if ((curTime - timeWindowStartMs) < timeWindowWidthMs) {
-		while (bufHead->next != bufTail && bytesSentInWindow < bytesAllowedPerWindow) {
+		// If we're still in the current time window, relay packets until we blow the size limit.
+		// Note that we allow the size limit to be exceeded by the last used packet,
+		// but we make up for that in the next time window.
+		while (bufHead->next != bufTail && bytesUsedInWindow < bytesAllowedInWindow) {
 			pac = bufHead->next;
 			insertBefore(popNode(pac), tail);
 			--bufSize;
 			bufSizeBytes -= pac->packetLen;
-			bytesSentInWindow += pac->packetLen;
+			bytesUsedInWindow += pac->packetLen;
 		}
 	}
 	else {
 		timeWindowStartMs += timeWindowWidthMs;
 
-		if (bytesSentInWindow > bytesAllowedPerWindow) {
-			bytesSentInWindow -= bytesAllowedPerWindow;
+		if (bytesUsedInWindow > bytesAllowedInWindow) {
+			// If we exceeded the size limit, then the remainder bytes carry over into the next window.
+			bytesUsedInWindow -= bytesAllowedInWindow;
 		} else {
-			bytesSentInWindow = 0;
+			// If we didn't exceed the limit, then each new window starts fresh.
+			bytesUsedInWindow = 0;
 		}
 	}
 
