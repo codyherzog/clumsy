@@ -19,7 +19,12 @@ MIT
 
 ## InTouchHealth Fork Notes
 
-### Usage Notes:
+### Usage:
+* Download the latest ITH build from the releases page.
+* Extract the Zip file to a folder on your PC.
+* Run clumsy.exe. If you see any Windows Defender or AV warnings, bypass them to run the app.
+
+### Newer Features:
 * You can now open multiple Clumsy instances.
     * This was possible in earlier versions, then was lost, but now it's back.
     * Note that we haven't carefully tested the behavior of overlapping filters, so use with care.
