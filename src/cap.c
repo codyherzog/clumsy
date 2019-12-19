@@ -151,22 +151,20 @@ static short capProcess(PacketNode* head, PacketNode* tail) {
 		return 0;
 	}
 
+	// Relay packets until we blow the size limit.
+	// Note that we allow the size limit to be exceeded by the last used packet,
+	// but we make up for that in the next time window.
 	const int bytesAllowedInWindow = (timeWindowWidthMs * kbps) / 8;
+	while (bufHead->next != bufTail && bytesUsedInWindow < bytesAllowedInWindow) {
+		pac = bufHead->next;
+		insertBefore(popNode(pac), tail);
+		--bufSize;
+		bufSizeBytes -= pac->packetLen;
+		bytesUsedInWindow += pac->packetLen;
+	};
 
 	const DWORD curTime = timeGetTime();
-	if ((curTime - timeWindowStartMs) < timeWindowWidthMs) {
-		// If we're still in the current time window, relay packets until we blow the size limit.
-		// Note that we allow the size limit to be exceeded by the last used packet,
-		// but we make up for that in the next time window.
-		while (bufHead->next != bufTail && bytesUsedInWindow < bytesAllowedInWindow) {
-			pac = bufHead->next;
-			insertBefore(popNode(pac), tail);
-			--bufSize;
-			bufSizeBytes -= pac->packetLen;
-			bytesUsedInWindow += pac->packetLen;
-		}
-	}
-	else {
+	if ((curTime - timeWindowStartMs) >= timeWindowWidthMs) {
 		timeWindowStartMs += timeWindowWidthMs;
 
 		if (bytesUsedInWindow > bytesAllowedInWindow) {
