@@ -46,7 +46,7 @@ static void uiSetupModule(Module *module, Ihandle *parent);
 // serializing config files using a stupid custom format
 #define CONFIG_FILE "config.txt"
 #define CONFIG_MAX_RECORDS 64
-#define CONFIG_BUF_SIZE 4096
+#define CONFIG_BUF_SIZE 16384
 typedef struct {
     char* filterName;
     char* filterValue;
