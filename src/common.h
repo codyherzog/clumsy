@@ -4,7 +4,7 @@
 #include "iup.h"
 #include "windivert.h"
 
-#define CLUMSY_VERSION "0.3"
+#define CLUMSY_VERSION "0.4.2 - ITH Alpha 3"
 #define MSG_BUFSIZE 512
 #define FILTER_BUFSIZE 1024
 #define NAME_SIZE 16
@@ -177,7 +177,7 @@ BOOL checkDirection(BOOL outboundPacket, short handleInbound, short handleOutbou
 
 
 // wraped timeBegin/EndPeriod to keep calling safe and end when exit
-#define TIMER_RESOLUTION 4
+#define TIMER_RESOLUTION 1
 void startTimePeriod();
 void endTimePeriod();
 
